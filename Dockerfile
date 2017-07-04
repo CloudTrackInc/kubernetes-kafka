@@ -1,6 +1,6 @@
 FROM wurstmeister/kafka:0.10.2.1
 
-MAINTAINER CloudTrackInc
+MAINTAINER dawidCh
 
 RUN java -version
 
