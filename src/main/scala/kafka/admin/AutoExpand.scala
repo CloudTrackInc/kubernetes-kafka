@@ -1,20 +1,17 @@
 package kafka.admin
 
 import java.util.concurrent.{CountDownLatch, LinkedBlockingDeque, TimeUnit}
-
-import joptsimple.OptionParser
-import kafka.cluster.BrokerEndPoint
-import kafka.common.{TopicAndPartition, AdminCommandFailedException}
-import kafka.utils._
-import org.apache.kafka.common.protocol.SecurityProtocol
-import org.apache.kafka.common.security.JaasUtils
-
-import collection._
-import _root_.scala.collection.JavaConversions._
 import java.util.{Collections, List => JList}
 
-import org.I0Itec.zkclient.{IZkChildListener, IZkDataListener, IZkStateListener}
+import joptsimple.OptionParser
+import kafka.common.{AdminCommandFailedException, TopicAndPartition}
+import kafka.utils._
+import org.I0Itec.zkclient.{IZkChildListener, IZkDataListener}
+import org.apache.kafka.common.security.JaasUtils
 import org.apache.zookeeper.CreateMode
+
+import _root_.scala.collection.JavaConversions._
+import scala.collection._
 
 
 object AutoExpandCommand {
@@ -48,7 +45,6 @@ object AutoExpandCommand {
     val mNode = zkUtils.zkClient.createEphemeralSequential(KAFKA_POD_MASTER+"/pod-", uid)
     val index = sequnce(mNode)
     case class Broker(index: Int, id: String) extends Ordered[Broker] {
-      import scala.math.Ordered.orderingToOrdered
 
       def compare(that: Broker): Int = this.index.compareTo(that.index)
     }
@@ -184,8 +180,8 @@ object AutoExpandCommand {
     }
 
     var (partitionsToBeReassigned, currentAssignments) = generateAssignment(zkUtils, newBrokersIds, topics, true)
-    println("Current partition replica assignment\n\n%s".format(zkUtils.formatAsReassignmentJson(currentAssignments)))
-    println("Proposed partition reassignment configuration\n\n%s".format(zkUtils.formatAsReassignmentJson(partitionsToBeReassigned)))
+    println("Current partition replica assignment\n\n%s".format(ZkUtils.formatAsReassignmentJson(currentAssignments)))
+    println("Proposed partition reassignment configuration\n\n%s".format(ZkUtils.formatAsReassignmentJson(partitionsToBeReassigned)))
     val exec = new ReassignPartitionsCommand(zkUtils, partitionsToBeReassigned)
     if (exec.reassignPartitions()){
       var inProgress = true
@@ -215,7 +211,7 @@ object AutoExpandCommand {
         attemt+=1
       }
       if (inProgress){
-        println("Timeout reassignment partitions:\n\n%s".format(zkUtils.formatAsReassignmentJson(currentAssignments)))
+        println("Timeout reassignment partitions:\n\n%s".format(ZkUtils.formatAsReassignmentJson(currentAssignments)))
       } else{
         println("Reassignment compleated!!!")
       }
