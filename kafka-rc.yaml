@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: kafka
-        image: cloudtrackinc/kubernetes-kafka:latest
+        image: dawidch/kubernetes-kafka:0.10.2.1
         ports:
         - containerPort: 9092
         env:
